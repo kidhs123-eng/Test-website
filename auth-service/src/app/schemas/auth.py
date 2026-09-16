@@ -1,9 +1,10 @@
-from pydantic import BaseModel, EmailStr, Field
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class RegisterSchema(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=6)
+    password: str
 
 
 class LoginSchema(BaseModel):
@@ -17,4 +18,4 @@ class TokenSchema(BaseModel):
 
 
 class SetPasswordSchema(BaseModel):
-    new_password: str = Field(..., min_length=6)
+    new_password: str
