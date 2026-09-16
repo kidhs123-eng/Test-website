@@ -39,11 +39,6 @@ services:
       - "0.0.0.0:8000:8000"
     env_file:
       - .env
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/app_db
-      - SECRET_KEY=supersecretjwtkey_change_me_in_production_32bytes
-      - ALGORITHM=HS256
-      - ACCESS_TOKEN_EXPIRE_MINUTES=60
     depends_on:
       db:
         condition: service_healthy

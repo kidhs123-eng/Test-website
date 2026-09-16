@@ -233,7 +233,7 @@
         <button type="button" id="guestBtn" class="btn btn-guest">Войти как Гость</button>
 
         <div class="auth-footer">
-            Нет аккаунта? <a href="register.html">Зарегистрироваться</a>
+            Нет аккаунта? <a href="/register">Зарегистрироваться</a>
         </div>
     </div>
 
@@ -272,7 +272,7 @@
                 if (!response.ok) throw new Error(data.detail || 'Неверный логин или пароль');
 
                 localStorage.setItem('access_token', data.access_token);
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
             } catch (err) {
                 showAlert(err.message);
             }
@@ -294,7 +294,7 @@
                 if (!response.ok) throw new Error(data.detail || 'Ошибка гостевого входа');
 
                 localStorage.setItem('access_token', data.access_token);
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
             } catch (err) {
                 showAlert(err.message);
             }

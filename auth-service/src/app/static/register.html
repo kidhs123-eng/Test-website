@@ -221,7 +221,7 @@
         </a>
 
         <div class="auth-footer">
-            Уже есть аккаунт? <a href="login.html">Войти</a>
+            Уже есть аккаунт? <a href="/login">Войти</a>
         </div>
     </div>
 
@@ -276,7 +276,7 @@
                 if (!loginResponse.ok) throw new Error(loginData.detail || 'Ошибка входа после регистрации');
 
                 localStorage.setItem('access_token', loginData.access_token);
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
 
             } catch (err) {
                 showAlert(err.message);

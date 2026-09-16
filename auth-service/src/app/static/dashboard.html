@@ -147,7 +147,6 @@
             color: var(--text-muted);
         }
 
-        /* Обертка поля ввода и кнопки с глазиком */
         .password-wrapper {
             position: relative;
             display: flex;
@@ -241,7 +240,6 @@
             <button id="logoutBtn" class="btn btn-danger">Выйти</button>
         </div>
 
-        <!-- Карточка статуса сессии -->
         <div class="card">
             <h2>Текущая сессия</h2>
             <div class="info-row">
@@ -254,7 +252,6 @@
             </div>
         </div>
 
-        <!-- Карточка проверки защищенного эндпоинта -->
         <div class="card">
             <h2>Проверка API (/auth/me)</h2>
             <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
@@ -264,7 +261,6 @@
             <pre id="responseBox"></pre>
         </div>
 
-        <!-- Карточка установки/смены пароля -->
         <div class="card">
             <h2>Безопасность аккаунта</h2>
             <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
@@ -289,31 +285,68 @@
     </div>
 
     <script>
-        // 1. Проверяем, передан ли токен в URL после Google OAuth редиректа
-        const urlParams = new URLSearchParams(window.location.search);
-        const tokenFromUrl = urlParams.get('token');
+        // Универсальный перехватчик запросов с автоматическим обновлением Access Token
+        async function fetchWithAuth(url, options = {}) {
+            let token = localStorage.getItem('access_token');
 
-        if (tokenFromUrl) {
-            localStorage.setItem('access_token', tokenFromUrl);
-            window.history.replaceState({}, document.title, window.location.pathname);
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+
+            let response = await fetch(url, options);
+
+            // Если Access Token отсутствует или истек (401), пробуем обновить через /refresh (HttpOnly Cookie)
+            if (response.status === 401) {
+                const refreshResponse = await fetch('/api/v1/auth/refresh', {
+                    method: 'POST'
+                });
+
+                if (refreshResponse.ok) {
+                    const data = await refreshResponse.json();
+                    localStorage.setItem('access_token', data.access_token);
+
+                    options.headers['Authorization'] = `Bearer ${data.access_token}`;
+                    response = await fetch(url, options);
+                } else {
+                    localStorage.removeItem('access_token');
+                    window.location.href = '/login';
+                }
+            }
+
+            return response;
         }
 
-        // 2. Получаем JWT токен из localStorage
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-            window.location.href = 'login.html';
+        // Инициализация при загрузке страницы
+        async function initDashboard() {
+            try {
+                // Если токена нет в localStorage, сразу пробуем получить через refresh cookie
+                if (!localStorage.getItem('access_token')) {
+                    const refreshResponse = await fetch('/api/v1/auth/refresh', { method: 'POST' });
+                    if (!refreshResponse.ok) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    const refreshData = await refreshResponse.json();
+                    localStorage.setItem('access_token', refreshData.access_token);
+                }
+
+                // Запрашиваем информацию о пользователе
+                const response = await fetchWithAuth('/api/v1/auth/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('userEmail').textContent = user.email || `ID: ${user.id}`;
+                }
+            } catch (err) {
+                console.error('Ошибка инициализации:', err);
+                window.location.href = '/login';
+            }
         }
 
-        // 3. Декодируем payload JWT
-        try {
-            const payloadBase64 = token.split('.')[1];
-            const decodedJson = JSON.parse(atob(payloadBase64));
-            document.getElementById('userEmail').textContent = decodedJson.email || `ID: ${decodedJson.sub}`;
-        } catch (e) {
-            document.getElementById('userEmail').textContent = 'Токен сохранен';
-        }
+        // Запускаем инициализацию
+        initDashboard();
 
-        // 4. Переключатель видимости пароля (Глазик)
+        // Переключатель видимости пароля (Глазик)
         const togglePasswordBtn = document.getElementById('togglePasswordBtn');
         const newPasswordInput = document.getElementById('newPassword');
         const eyeIcon = document.getElementById('eyeIcon');
@@ -328,16 +361,13 @@
             togglePasswordBtn.setAttribute('aria-label', isPassword ? 'Скрыть пароль' : 'Показать пароль');
         });
 
-        // 5. Запрос профиля /auth/me
+        // Запрос профиля (/auth/me)
         document.getElementById('fetchMeBtn').addEventListener('click', async () => {
             const responseBox = document.getElementById('responseBox');
             responseBox.style.display = 'block';
 
             try {
-                const response = await fetch('/api/v1/auth/me', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const response = await fetchWithAuth('/api/v1/auth/me');
 
                 if (response.status === 429) {
                     throw new Error('429 Too Many Requests: Лимит запросов превышен.');
@@ -354,7 +384,7 @@
             }
         });
 
-        // 6. Форма установки/обновления пароля
+        // Форма установки/обновления пароля
         document.getElementById('setPasswordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const alertBox = document.getElementById('pwdAlertBox');
@@ -364,12 +394,9 @@
             const new_password = document.getElementById('newPassword').value;
 
             try {
-                const response = await fetch('/api/v1/auth/set-password', {
+                const response = await fetchWithAuth('/api/v1/auth/set-password', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ new_password })
                 });
 
@@ -385,7 +412,6 @@
                 alertBox.style.display = 'block';
                 document.getElementById('newPassword').value = '';
 
-                // Сбрасываем поле обратно в режим 'password' после отправки
                 newPasswordInput.setAttribute('type', 'password');
                 eyeIcon.querySelector('path').setAttribute('d', eyeOpenPath);
 
@@ -396,54 +422,19 @@
             }
         });
 
-        // 7. Выход из системы
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('access_token');
-            window.location.href = 'login.html';
-        });
-        // Безопасный клиентский перехватчик с авто-обновлением Access Token
-        async function fetchWithAuth(url, options = {}) {
-            let token = localStorage.getItem('access_token');
-
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`
-            };
-
-            let response = await fetch(url, options);
-
-            // Если Access Token истек (401), пробуем обновить через /auth/refresh (HttpOnly Cookie)
-            if (response.status === 401) {
-                const refreshResponse = await fetch('/api/v1/auth/refresh', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (refreshResponse.ok) {
-                    const data = await refreshResponse.json();
-                    localStorage.setItem('access_token', data.access_token);
-
-                    // Повторяем первоначальный запрос с новым токеном
-                    options.headers['Authorization'] = `Bearer ${data.access_token}`;
-                    response = await fetch(url, options);
-                } else {
-                    // Если и Refresh токен недействителен — отправляем на форму логина
-                    localStorage.removeItem('access_token');
-                    window.location.href = 'login.html';
-                }
-            }
-
-            return response;
-        }
-
-        // Пример использования:
-        document.getElementById('fetchMeBtn').addEventListener('click', async () => {
+        // Выход из системы
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
             try {
-                const response = await fetchWithAuth('/api/v1/auth/me');
-                const data = await response.json();
-                document.getElementById('responseBox').textContent = JSON.stringify(data, null, 2);
+                // 1. Отправляем запрос бэкенду на удаление HttpOnly cookie
+                await fetch('/api/v1/auth/logout', {
+                    method: 'POST'
+                });
             } catch (err) {
-                console.error('Ошибка запроса:', err);
+                console.error('Logout error:', err);
+            } finally {
+                // 2. Удаляем access_token из localStorage и перенаправляем на login
+                localStorage.removeItem('access_token');
+                window.location.href = '/login';
             }
         });
     </script>
