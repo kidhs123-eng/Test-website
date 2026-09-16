@@ -1,0 +1,22 @@
+# Переменные окружения (пароли, ключи, данные подключения к БД)
+.env
+*.env
+
+.env.example
+
+# Виртуальное окружение Python
+.venv/
+venv/
+env/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+
+# Настройки проекта PyCharm / VS Code
+.idea/
+.vscode/
+
+# Системные файлы Windows
+Thumbs.db
+desktop.ini

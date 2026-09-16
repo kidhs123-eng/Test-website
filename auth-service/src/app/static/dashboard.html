@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления | Service Portal</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-primary: #6366f1;
+            --accent-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --success-color: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-color);
+            color: #ffffff;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            width: 140px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        /* Обертка поля ввода и кнопки с глазиком */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper .form-control {
+            padding-right: 2.75rem;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-main);
+        }
+
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .alert-box {
+            display: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        pre {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #a6e22e;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Панель управления</h1>
+            <button id="logoutBtn" class="btn btn-danger">Выйти</button>
+        </div>
+
+        <!-- Карточка статуса сессии -->
+        <div class="card">
+            <h2>Текущая сессия</h2>
+            <div class="info-row">
+                <span class="info-label">Статус:</span>
+                <span class="info-value"><span class="status-badge">Авторизован</span></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email / Sub:</span>
+                <span id="userEmail" class="info-value">Загрузка...</span>
+            </div>
+        </div>
+
+        <!-- Карточка проверки защищенного эндпоинта -->
+        <div class="card">
+            <h2>Проверка API (/auth/me)</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                Получение полного профиля текущего пользователя из базы данных PostgreSQL.
+            </p>
+            <button id="fetchMeBtn" class="btn btn-primary">Запросить данные (/me)</button>
+            <pre id="responseBox"></pre>
+        </div>
+
+        <!-- Карточка установки/смены пароля -->
+        <div class="card">
+            <h2>Безопасность аккаунта</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                Установите пароль, чтобы иметь возможность входить как по Google OAuth, так и через Email и пароль.
+            </p>
+            <form id="setPasswordForm">
+                <div class="form-group">
+                    <label for="newPassword">Новый пароль</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="newPassword" class="form-control" placeholder="••••••••" minlength="6" required>
+                        <button type="button" id="togglePasswordBtn" class="toggle-password" aria-label="Показать пароль">
+                            <svg id="eyeIcon" viewBox="0 0 24 24">
+                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Установить пароль</button>
+            </form>
+            <div id="pwdAlertBox" class="alert-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Проверяем, передан ли токен в URL после Google OAuth редиректа
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get('token');
+
+        if (tokenFromUrl) {
+            localStorage.setItem('access_token', tokenFromUrl);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // 2. Получаем JWT токен из localStorage
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // 3. Декодируем payload JWT
+        try {
+            const payloadBase64 = token.split('.')[1];
+            const decodedJson = JSON.parse(atob(payloadBase64));
+            document.getElementById('userEmail').textContent = decodedJson.email || `ID: ${decodedJson.sub}`;
+        } catch (e) {
+            document.getElementById('userEmail').textContent = 'Токен сохранен';
+        }
+
+        // 4. Переключатель видимости пароля (Глазик)
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const newPasswordInput = document.getElementById('newPassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        const eyeOpenPath = 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z';
+        const eyeClosedPath = 'M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.17c0-1.66-1.34-3-3-3l-.17.02z';
+
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = newPasswordInput.getAttribute('type') === 'password';
+            newPasswordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            eyeIcon.querySelector('path').setAttribute('d', isPassword ? eyeClosedPath : eyeOpenPath);
+            togglePasswordBtn.setAttribute('aria-label', isPassword ? 'Скрыть пароль' : 'Показать пароль');
+        });
+
+        // 5. Запрос профиля /auth/me
+        document.getElementById('fetchMeBtn').addEventListener('click', async () => {
+            const responseBox = document.getElementById('responseBox');
+            responseBox.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/v1/auth/me', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 429) {
+                    throw new Error('429 Too Many Requests: Лимит запросов превышен.');
+                }
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Ошибка при получении данных');
+
+                responseBox.style.color = '#a6e22e';
+                responseBox.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                responseBox.style.color = '#ef4444';
+                responseBox.textContent = err.message;
+            }
+        });
+
+        // 6. Форма установки/обновления пароля
+        document.getElementById('setPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('pwdAlertBox');
+            alertBox.style.display = 'none';
+            alertBox.className = 'alert-box';
+
+            const new_password = document.getElementById('newPassword').value;
+
+            try {
+                const response = await fetch('/api/v1/auth/set-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ new_password })
+                });
+
+                if (response.status === 429) {
+                    throw new Error('Слишком много запросов (429). Подождите немного.');
+                }
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Не удалось установить пароль');
+
+                alertBox.textContent = data.detail || 'Пароль успешно установлен!';
+                alertBox.classList.add('alert-success');
+                alertBox.style.display = 'block';
+                document.getElementById('newPassword').value = '';
+
+                // Сбрасываем поле обратно в режим 'password' после отправки
+                newPasswordInput.setAttribute('type', 'password');
+                eyeIcon.querySelector('path').setAttribute('d', eyeOpenPath);
+
+            } catch (err) {
+                alertBox.textContent = err.message;
+                alertBox.classList.add('alert-error');
+                alertBox.style.display = 'block';
+            }
+        });
+
+        // 7. Выход из системы
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            window.location.href = 'login.html';
+        });
+        // Безопасный клиентский перехватчик с авто-обновлением Access Token
+        async function fetchWithAuth(url, options = {}) {
+            let token = localStorage.getItem('access_token');
+
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+
+            let response = await fetch(url, options);
+
+            // Если Access Token истек (401), пробуем обновить через /auth/refresh (HttpOnly Cookie)
+            if (response.status === 401) {
+                const refreshResponse = await fetch('/api/v1/auth/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (refreshResponse.ok) {
+                    const data = await refreshResponse.json();
+                    localStorage.setItem('access_token', data.access_token);
+
+                    // Повторяем первоначальный запрос с новым токеном
+                    options.headers['Authorization'] = `Bearer ${data.access_token}`;
+                    response = await fetch(url, options);
+                } else {
+                    // Если и Refresh токен недействителен — отправляем на форму логина
+                    localStorage.removeItem('access_token');
+                    window.location.href = 'login.html';
+                }
+            }
+
+            return response;
+        }
+
+        // Пример использования:
+        document.getElementById('fetchMeBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetchWithAuth('/api/v1/auth/me');
+                const data = await response.json();
+                document.getElementById('responseBox').textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                console.error('Ошибка запроса:', err);
+            }
+        });
+    </script>
+</body>
+</html>
