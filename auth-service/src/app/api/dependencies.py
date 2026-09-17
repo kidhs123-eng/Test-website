@@ -2,7 +2,6 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
-from jwt.exceptions import InvalidTokenError
 from app.core.database import get_db
 from app.core.security import decode_token
 from app.models.user import User
@@ -17,7 +16,7 @@ def get_http_client(request: Request) -> httpx.AsyncClient:
 
 
 def get_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:
-    """Instantiate AuthService with database session."""
+    """Instantiate AuthService with active database session."""
     return AuthService(db_session=db)
 
 
@@ -31,15 +30,14 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    # 1. Декодируем токен (если просрочен — вернет None)
+    # Decode token and verify existence
     payload = decode_token(token)
     print(f"DEBUG TOKEN PAYLOAD: {payload}")
 
-    # КРИТИЧНО: Если payload == None, ОБЯЗАТЕЛЬНО выбрасываем 401
     if payload is None:
         raise credentials_exception
 
-    # 2. Проверяем тип токена
+    # Verify token type
     if payload.get("type") != "access":
         raise credentials_exception
 

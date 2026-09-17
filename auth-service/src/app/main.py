@@ -3,6 +3,8 @@ from pathlib import Path
 import httpx
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.requests import Request
+from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -26,28 +28,36 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
-
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(auth_router, prefix="/api/v1")
 
 
+
 @app.get("/dashboard")
-async def serve_dashboard():
+async def serve_dashboard(request: Request):
     return FileResponse(STATIC_DIR / "dashboard.html")
 
 
 @app.get("/login")
-async def serve_login():
-    return FileResponse(STATIC_DIR / "login.html")
+async def serve_login(request: Request):
+    if request.cookies.get("refresh_token"):
+        print(request.cookies.get("refresh_token"), request)
+        return RedirectResponse(url="/dashboard", status_code=307)
+    else:
+        return FileResponse(STATIC_DIR / "login.html")
 
 
 @app.get("/register")
-async def serve_register():
-    return FileResponse(STATIC_DIR / "register.html")
+async def serve_register(request: Request):
+    if request.cookies.get("refresh_token"):
+        return RedirectResponse(url="/dashboard", status_code=307)
+    else:
+        return FileResponse(STATIC_DIR / "register.html")
+
 
 @app.get("/")
 async def root():
-    # Автоматический редирект с главными частыми путями на dashboard
     return RedirectResponse(url="/dashboard")
