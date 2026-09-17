@@ -18,7 +18,7 @@ from app.core.database import get_db
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 limiter = Limiter(key_func=get_remote_address)
-password_hash = PasswordHash.recommended()
+pwd_hash = PasswordHash.recommended()
 
 
 def set_refresh_cookie(response: Response, refresh_token: str) -> None:
@@ -172,7 +172,7 @@ async def set_password(
         )
 
     # Хэшируем новый пароль через Argon2 (pwdlib)
-    current_user.password_hash = password_hash.hash(data.new_password)
+    current_user.password_hash = pwd_hash.hash(data.new_password)
 
     await db.commit()
     await db.refresh(current_user)

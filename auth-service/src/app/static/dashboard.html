@@ -1,293 +1,97 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель управления | Service Portal</title>
+    <title>Dashboard | Service Portal</title>
+    <link rel="stylesheet" href="/static/styles.css">
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-primary: #6366f1;
-            --accent-hover: #4f46e5;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --danger-color: #ef4444;
-            --danger-hover: #dc2626;
-            --success-color: #10b981;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 2rem 1.5rem;
-        }
-
+        /* Hide content by default — display body background only */
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-        }
-
-        .btn {
-            padding: 0.65rem 1.25rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease-in-out;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-danger {
-            background-color: transparent;
-            color: var(--danger-color);
-            border: 1px solid var(--danger-color);
-        }
-
-        .btn-danger:hover {
-            background-color: var(--danger-color);
-            color: #ffffff;
-        }
-
-        .btn-primary {
-            background-color: var(--accent-primary);
-            color: #ffffff;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-        }
-
-        .card h2 {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .info-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .info-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .info-label {
-            width: 140px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .info-value {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 0.95rem;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background-color: rgba(16, 185, 129, 0.15);
-            color: var(--success-color);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-        }
-
-        .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .password-wrapper .form-control {
-            padding-right: 2.75rem;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 0.75rem;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            transition: color 0.2s ease-in-out;
-        }
-
-        .toggle-password:hover {
-            color: var(--text-main);
-        }
-
-        .toggle-password svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .alert-box {
-            display: none;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            margin-top: 1rem;
-        }
-
-        .alert-error {
-            background-color: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--danger-color);
-            color: var(--danger-color);
-        }
-
-        .alert-success {
-            background-color: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--success-color);
-            color: var(--success-color);
-        }
-
-        pre {
-            background-color: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            color: #a6e22e;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.85rem;
-            overflow-x: auto;
-            margin-top: 1rem;
             display: none;
         }
     </style>
 </head>
 <body>
 
+    <!-- Container rendered after successful token validation -->
     <div class="container">
         <div class="header">
-            <h1>Панель управления</h1>
-            <button id="logoutBtn" class="btn btn-danger">Выйти</button>
+            <h1>Dashboard</h1>
+            <button id="logoutBtn" class="btn btn-danger">Log Out</button>
         </div>
 
         <div class="card">
-            <h2>Текущая сессия</h2>
+            <h2>Current Session</h2>
             <div class="info-row">
-                <span class="info-label">Статус:</span>
-                <span class="info-value"><span class="status-badge">Авторизован</span></span>
+                <span class="info-label">Status:</span>
+                <span class="info-value"><span class="status-badge">Authenticated</span></span>
             </div>
             <div class="info-row">
                 <span class="info-label">Email / Sub:</span>
-                <span id="userEmail" class="info-value">Загрузка...</span>
+                <span id="userEmail" class="info-value">Loading...</span>
             </div>
         </div>
 
         <div class="card">
-            <h2>Проверка API (/auth/me)</h2>
+            <h2>API Check (/auth/me)</h2>
             <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                Получение полного профиля текущего пользователя из базы данных PostgreSQL.
+                Fetch full profile for the current user from the PostgreSQL database.
             </p>
-            <button id="fetchMeBtn" class="btn btn-primary">Запросить данные (/me)</button>
+            <button id="fetchMeBtn" class="btn btn-primary">Request Data (/me)</button>
             <pre id="responseBox"></pre>
         </div>
 
         <div class="card">
-            <h2>Безопасность аккаунта</h2>
+            <h2>Account Security</h2>
             <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                Установите пароль, чтобы иметь возможность входить как по Google OAuth, так и через Email и пароль.
+                Set a password to sign in with both Google OAuth and Email/Password.
             </p>
             <form id="setPasswordForm">
                 <div class="form-group">
-                    <label for="newPassword">Новый пароль</label>
+                    <label for="newPassword">New Password</label>
                     <div class="password-wrapper">
                         <input type="password" id="newPassword" class="form-control" placeholder="••••••••" minlength="6" required>
-                        <button type="button" id="togglePasswordBtn" class="toggle-password" aria-label="Показать пароль">
+                        <button type="button" id="togglePasswordBtn" class="toggle-password" aria-label="Show password">
                             <svg id="eyeIcon" viewBox="0 0 24 24">
                                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                             </svg>
                         </button>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Установить пароль</button>
+                <button type="submit" class="btn btn-primary">Set Password</button>
             </form>
             <div id="pwdAlertBox" class="alert-box"></div>
         </div>
     </div>
 
     <script>
-        // Универсальный перехватчик запросов с автоматическим обновлением Access Token
+        // Refresh Access Token using HttpOnly Refresh Cookie
+        async function tryRefreshToken() {
+            try {
+                const res = await fetch('/api/v1/auth/refresh', { method: 'POST' });
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    return data.access_token;
+                }
+            } catch (err) {
+                console.error('Refresh request failed:', err);
+            }
+            return null;
+        }
+
+        // Universal request interceptor with auto-refresh logic
         async function fetchWithAuth(url, options = {}) {
             let token = localStorage.getItem('access_token');
+
+            if (!token) {
+                token = await tryRefreshToken();
+                if (!token) {
+                    window.location.replace('/login');
+                    return new Response(null, { status: 401 });
+                }
+            }
 
             options.headers = {
                 ...options.headers,
@@ -296,57 +100,43 @@
 
             let response = await fetch(url, options);
 
-            // Если Access Token отсутствует или истек (401), пробуем обновить через /refresh (HttpOnly Cookie)
             if (response.status === 401) {
-                const refreshResponse = await fetch('/api/v1/auth/refresh', {
-                    method: 'POST'
-                });
+                const newToken = await tryRefreshToken();
 
-                if (refreshResponse.ok) {
-                    const data = await refreshResponse.json();
-                    localStorage.setItem('access_token', data.access_token);
-
-                    options.headers['Authorization'] = `Bearer ${data.access_token}`;
+                if (newToken) {
+                    options.headers['Authorization'] = `Bearer ${newToken}`;
                     response = await fetch(url, options);
                 } else {
                     localStorage.removeItem('access_token');
-                    window.location.href = '/login';
+                    window.location.replace('/login');
                 }
             }
 
             return response;
         }
 
-        // Инициализация при загрузке страницы
+        // Page initialization
         async function initDashboard() {
             try {
-                // Если токена нет в localStorage, сразу пробуем получить через refresh cookie
-                if (!localStorage.getItem('access_token')) {
-                    const refreshResponse = await fetch('/api/v1/auth/refresh', { method: 'POST' });
-                    if (!refreshResponse.ok) {
-                        window.location.href = '/login';
-                        return;
-                    }
-                    const refreshData = await refreshResponse.json();
-                    localStorage.setItem('access_token', refreshData.access_token);
-                }
-
-                // Запрашиваем информацию о пользователе
                 const response = await fetchWithAuth('/api/v1/auth/me');
+
                 if (response.ok) {
                     const user = await response.json();
                     document.getElementById('userEmail').textContent = user.email || `ID: ${user.id}`;
+                    document.querySelector('.container').style.display = 'block';
+                } else {
+                    throw new Error('Unauthorized');
                 }
             } catch (err) {
-                console.error('Ошибка инициализации:', err);
-                window.location.href = '/login';
+                console.error('Initialization error:', err);
+                localStorage.removeItem('access_token');
+                window.location.replace('/login');
             }
         }
 
-        // Запускаем инициализацию
         initDashboard();
 
-        // Переключатель видимости пароля (Глазик)
+        // Password visibility toggle
         const togglePasswordBtn = document.getElementById('togglePasswordBtn');
         const newPasswordInput = document.getElementById('newPassword');
         const eyeIcon = document.getElementById('eyeIcon');
@@ -358,10 +148,10 @@
             const isPassword = newPasswordInput.getAttribute('type') === 'password';
             newPasswordInput.setAttribute('type', isPassword ? 'text' : 'password');
             eyeIcon.querySelector('path').setAttribute('d', isPassword ? eyeClosedPath : eyeOpenPath);
-            togglePasswordBtn.setAttribute('aria-label', isPassword ? 'Скрыть пароль' : 'Показать пароль');
+            togglePasswordBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
         });
 
-        // Запрос профиля (/auth/me)
+        // Manual profile query (/auth/me)
         document.getElementById('fetchMeBtn').addEventListener('click', async () => {
             const responseBox = document.getElementById('responseBox');
             responseBox.style.display = 'block';
@@ -370,11 +160,11 @@
                 const response = await fetchWithAuth('/api/v1/auth/me');
 
                 if (response.status === 429) {
-                    throw new Error('429 Too Many Requests: Лимит запросов превышен.');
+                    throw new Error('429 Too Many Requests: Rate limit exceeded.');
                 }
 
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Ошибка при получении данных');
+                if (!response.ok) throw new Error(data.detail || 'Error fetching data');
 
                 responseBox.style.color = '#a6e22e';
                 responseBox.textContent = JSON.stringify(data, null, 2);
@@ -384,7 +174,7 @@
             }
         });
 
-        // Форма установки/обновления пароля
+        // Set password form submit handler
         document.getElementById('setPasswordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const alertBox = document.getElementById('pwdAlertBox');
@@ -401,13 +191,13 @@
                 });
 
                 if (response.status === 429) {
-                    throw new Error('Слишком много запросов (429). Подождите немного.');
+                    throw new Error('Too many requests (429). Please wait a bit.');
                 }
 
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Не удалось установить пароль');
+                if (!response.ok) throw new Error(data.detail || 'Failed to set password');
 
-                alertBox.textContent = data.detail || 'Пароль успешно установлен!';
+                alertBox.textContent = data.detail || 'Password successfully set!';
                 alertBox.classList.add('alert-success');
                 alertBox.style.display = 'block';
                 document.getElementById('newPassword').value = '';
@@ -422,19 +212,15 @@
             }
         });
 
-        // Выход из системы
+        // Logout handler
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try {
-                // 1. Отправляем запрос бэкенду на удаление HttpOnly cookie
-                await fetch('/api/v1/auth/logout', {
-                    method: 'POST'
-                });
+                await fetch('/api/v1/auth/logout', { method: 'POST' });
             } catch (err) {
                 console.error('Logout error:', err);
             } finally {
-                // 2. Удаляем access_token из localStorage и перенаправляем на login
                 localStorage.removeItem('access_token');
-                window.location.href = '/login';
+                window.location.replace('/login');
             }
         });
     </script>
